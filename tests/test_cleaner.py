@@ -9,6 +9,7 @@ from pathlib import Path
 import pytest
 
 from notion_csv_cleaner.cleaner import process_csv, sanitize_row
+from notion_csv_cleaner.generator import generate_schema_from_csv
 from notion_csv_cleaner.schema import NotionSchema
 
 COLUMNS = [
@@ -146,4 +147,32 @@ class TestProcessCSV:
         process_csv(tmp_path / "mini.csv", out, tmp_path / "s.json")
         with open(out, encoding="utf-8-sig") as f:
             assert list(csv.DictReader(f))[0]["Name"] == "Widget"
+
+
+# -- generator ---------------------------------------------------------------
+
+class TestGenerator:
+    def test_generates_schema(self, tmp_path):
+        csv_path = tmp_path / "export.csv"
+        with open(csv_path, "w", newline="", encoding="utf-8-sig") as f:
+            w = csv.DictWriter(f, fieldnames=["Name", "Status", "Container"])
+            w.writeheader()
+            w.writerow({"Name": "A", "Status": "To-do", "Container": "Work"})
+            w.writerow({"Name": "B", "Status": "Done", "Container": "Work"})
+            w.writerow({"Name": "C", "Status": "To-do", "Container": "Home"})
+        out = tmp_path / "schema.json"
+        result = generate_schema_from_csv(csv_path, out)
+        assert result == out
+        import json
+        cfg = json.loads(out.read_text(encoding="utf-8"))
+        assert cfg["expected_columns"] == ["Name", "Status", "Container"]
+        assert cfg["required_fields"] == ["Name"]
+        assert sorted(cfg["valid_containers"]) == ["Home", "Work"]
+        assert "Status" in cfg["select_mappings"]
+        assert cfg["select_mappings"]["Status"]["allowed"] == ["Done", "To-do"]
+
+    def test_missing_file(self, tmp_path):
+        with pytest.raises(FileNotFoundError):
+            generate_schema_from_csv(tmp_path / "nope.csv", tmp_path / "out.json")
+
 
