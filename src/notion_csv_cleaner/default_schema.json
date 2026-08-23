@@ -1,0 +1,60 @@
+{
+  "expected_columns": [
+    "Task Name",
+    "Container",
+    "Energy Demand",
+    "Status",
+    "MVD Baseline",
+    "Scheduled Date",
+    "Completed Date",
+    "Minutes",
+    "Category"
+  ],
+  "required_fields": ["Task Name"],
+  "valid_containers": [
+    "AWS Certified Solutions Architect - Associate (SAA-C03)",
+    "ServiceNow Administration Fundamentals",
+    "Security+ SY0-701",
+    "CCNA",
+    "CASP",
+    "Khan Academy",
+    "PracticalSQL",
+    "Homelab",
+    "MG Drywall USA Website",
+    "Career",
+    "Finance",
+    "Health",
+    "Fitness",
+    "Home",
+    "Family",
+    "Kids — School",
+    "Kids — Activities",
+    "Wife",
+    "Shopping",
+    "Admin"
+  ],
+  "select_mappings": {
+    "Energy Demand": {
+      "default": "🟡 Medium",
+      "fallbacks": {
+        "high": "🔋 High",
+        "med": "🟡 Medium",
+        "low": "🧘 Low"
+      }
+    },
+    "Status": {
+      "default": "To-do",
+      "allowed": ["To-do", "In progress", "Complete"]
+    },
+    "MVD Baseline": {
+      "default": "No",
+      "fallbacks": {
+        "yes": "Yes",
+        "no": "No"
+      }
+    }
+  },
+  "default_mappings": {
+    "Category": "Container"
+  }
+}
